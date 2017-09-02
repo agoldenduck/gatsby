@@ -79,11 +79,11 @@ class Index extends React.Component {
         </h3>
 
         <ul style={styles.ul}>
-          {images.map(image =>
+          {images.map(image => (
             <li style={styles.thumbnail} key={image.node.resize.src}>
               <img src={image.node.resize.src} />
             </li>
-          )}
+          ))}
         </ul>
 
         <p
@@ -334,17 +334,20 @@ export const pageQuery = graphql`
         srcSet
         sizes
         originalImg
+        originalName
       }
     }
     resolution: imageSharp(id: { regex: "/lol.jpg/" }) {
       responsiveResolution(grayscale: true, width: 614) {
         src
         srcSet
+        originalName
       }
     }
     cropDefault: imageSharp(id: { regex: "/gatsby.jpg/" }) {
       resize(width: 180, height: 180) {
         src
+        originalName
       }
     }
     cropBottomLeft: imageSharp(id: { regex: "/nyancat/" }) {

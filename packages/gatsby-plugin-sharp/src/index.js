@@ -241,6 +241,7 @@ function queueImageResizing({ file, args = {} }) {
   // Calculate the eventual width/height of the image.
   const dimensions = imageSize(file.absolutePath)
   const aspectRatio = dimensions.width / dimensions.height
+  const originalName = file.base
 
   // If the width/height are both set, we're cropping so just return
   // that.
@@ -276,6 +277,7 @@ function queueImageResizing({ file, args = {} }) {
     height,
     aspectRatio,
     finishedPromise,
+    originalName: originalName,
   }
 }
 
@@ -322,12 +324,14 @@ async function notMemoizedbase64({ file, args = {} }) {
   }
 
   const [buffer, info] = await pipeline.toBufferAsync()
+  const originalName = file.base
 
   return {
     src: `data:image/${info.format};base64,${buffer.toString(`base64`)}`,
     width: info.width,
     height: info.height,
     aspectRatio: info.width / info.height,
+    originalName: originalName,
   }
 }
 
@@ -354,9 +358,20 @@ async function responsiveSizes({ file, args = {} }) {
   const options = _.defaults(args, defaultArgs)
   options.maxWidth = parseInt(options.maxWidth, 10)
 
+  // Account for images with a high pixel density. We assume that these types of
+  // images are intended to be displayed at their native resolution.
+  const { width, height, density } = await sharp(file.absolutePath).metadata()
+  const pixelRatio =
+    typeof density === `number` && density > 0 ? density / 72 : 1
+  const presentationWidth = Math.min(
+    options.maxWidth,
+    Math.round(width / pixelRatio)
+  )
+  const presentationHeight = Math.round(presentationWidth * (height / width))
+
   // If the users didn't set a default sizes, we'll make one.
   if (!options.sizes) {
-    options.sizes = `(max-width: ${options.maxWidth}px) 100vw, ${options.maxWidth}px`
+    options.sizes = `(max-width: ${presentationWidth}px) 100vw, ${presentationWidth}px`
   }
 
   // Create sizes (in width) for the image. If the max width of the container
@@ -374,13 +389,12 @@ async function responsiveSizes({ file, args = {} }) {
   sizes.push(options.maxWidth * 1.5)
   sizes.push(options.maxWidth * 2)
   sizes.push(options.maxWidth * 3)
-  const dimensions = imageSize(file.absolutePath)
-  const filteredSizes = sizes.filter(size => size < dimensions.width)
+  const filteredSizes = sizes.filter(size => size < width)
 
   // Add the original image to ensure the largest image possible
   // is available for small images. Also so we can link to
   // the original image.
-  filteredSizes.push(dimensions.width)
+  filteredSizes.push(width)
 
   // Sort sizes for prettiness.
   const sortedSizes = _.sortBy(filteredSizes)
@@ -419,6 +433,7 @@ async function responsiveSizes({ file, args = {} }) {
   const srcSet = images
     .map(image => `${image.src} ${Math.round(image.width)}w`)
     .join(`,\n`)
+  const originalName = file.base
 
   return {
     base64: base64Image.src,
@@ -426,7 +441,11 @@ async function responsiveSizes({ file, args = {} }) {
     src: fallbackSrc,
     srcSet,
     sizes: options.sizes,
-    originalImage: originalImg,
+    originalImg: originalImg,
+    originalName: originalName,
+    density,
+    presentationWidth,
+    presentationHeight,
   }
 }
 
@@ -519,6 +538,8 @@ async function responsiveResolution({ file, args = {} }) {
     })
     .join(`,\n`)
 
+  const originalName = file.base
+
   return {
     base64: base64Image.src,
     aspectRatio: images[0].aspectRatio,
@@ -526,6 +547,7 @@ async function responsiveResolution({ file, args = {} }) {
     height: images[0].height,
     src: fallbackSrc,
     srcSet,
+    originalName: originalName,
   }
 }
 

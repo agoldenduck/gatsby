@@ -94,7 +94,7 @@ module.exports = React.createClass({
         opacity: 0.8,
       },
     }
-    const NavItem = ({ linkTo, children }) =>
+    const NavItem = ({ linkTo, children }) => (
       <li
         css={{
           display: `inline-block`,
@@ -105,7 +105,8 @@ module.exports = React.createClass({
           {children}
         </Link>
       </li>
-    const MobileNavItem = ({ linkTo, title, children }) =>
+    )
+    const MobileNavItem = ({ linkTo, title, children }) => (
       <Link
         to={linkTo}
         css={{
@@ -118,14 +119,13 @@ module.exports = React.createClass({
         }}
       >
         {children}
-        <div css={{ opacity: 0.8 }}>
-          {title}
-        </div>
+        <div css={{ opacity: 0.8 }}>{title}</div>
       </Link>
+    )
     const socialIconsStyles = {
       color: presets.brandLight,
-      [presets.Tablet]: {
-        color: isHomepage ? `white` : false,
+      [presets.Phablet]: {
+        color: isHomepage ? presets.brandLighter : false,
       },
       [presets.Desktop]: {
         fontSize: scale(0).fontSize,
@@ -134,24 +134,11 @@ module.exports = React.createClass({
 
     return (
       <div>
-        <Helmet
-          defaultTitle={`GatsbyJS`}
-          titleTemplate={`%s | GatsbyJS`}
-          meta={[
-            {
-              name: `twitter:site`,
-              content: `@gatsbyjs`,
-            },
-            {
-              name: `og:type`,
-              content: `website`,
-            },
-            {
-              name: `og:site_name`,
-              content: `GatsbyJS`,
-            },
-          ]}
-        />
+        <Helmet defaultTitle={`GatsbyJS`} titleTemplate={`%s | GatsbyJS`}>
+          <meta name="twitter:site" content="@gatsbyjs" />
+          <meta name="og:type" content="website" />
+          <meta name="og:site_name" content="GatsbyJS" />
+        </Helmet>
         <div
           css={{
             borderBottom: `1px solid ${presets.veryLightPurple}`,
@@ -159,15 +146,15 @@ module.exports = React.createClass({
               ? `transparent`
               : `${presets.veryLightPurple}`,
             backgroundColor: isHomepage
-              ? `rgba(0,0,0,0)`
+              ? `rgba(255,255,255,0)`
               : `rgba(255,255,255,0.975)`,
             position: isHomepage ? `absolute` : false,
             height: headerHeight,
             zIndex: `1`,
+            left: 0,
+            right: 0,
             [presets.Tablet]: {
               position: isHomepage ? `absolute` : `fixed`,
-              left: 0,
-              right: 0,
             },
           }}
         >
@@ -236,38 +223,41 @@ module.exports = React.createClass({
             <div
               css={{
                 marginLeft: isHomepage ? rhythm(1 / 2) : `auto`,
-                [presets.Tablet]: {
-                  marginLeft: `auto`,
+                [presets.Phablet]: {
+                  marginLeft: isHomepage ? `auto` : `auto`,
                 },
               }}
             >
               <a
                 href="https://github.com/gatsbyjs/gatsby"
+                title="Github"
                 css={{
                   ...navItemStyles,
                   ...socialIconsStyles,
                 }}
               >
-                <GithubIcon css={{ verticalAlign: `text-top` }} />
-                {` `}
+                <GithubIcon style={{ verticalAlign: `text-top` }} />
               </a>
               <a
                 href="https://discord.gg/0ZcbPKXt5bZjGY5n"
+                title="Discord"
                 css={{
                   ...navItemStyles,
                   ...socialIconsStyles,
                 }}
               >
-                <DiscordIcon />
+                <DiscordIcon overrideCSS={{ verticalAlign: `text-top` }} />
               </a>
               <a
                 href="https://twitter.com/gatsbyjs"
+                title="@gatsbyjs"
                 css={{
                   ...navItemStyles,
                   ...socialIconsStyles,
+                  paddingRight: 0,
                 }}
               >
-                <TwitterIcon css={{ verticalAlign: `text-top` }} />
+                <TwitterIcon style={{ verticalAlign: `text-top` }} />
               </a>
             </div>
           </div>

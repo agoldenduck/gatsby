@@ -23,6 +23,12 @@ module.exports = {
       },
     },
     {
+      resolve: `gatsby-plugin-typography`,
+      options: {
+        pathToConfigModule: `src/utils/typography`,
+      },
+    },
+    {
       resolve: `gatsby-plugin-canonical-urls`,
       options: {
         siteUrl: `https://www.gatsbyjs.org`,
@@ -58,7 +64,8 @@ module.exports = {
     {
       resolve: `gatsby-plugin-nprogress`,
       options: {
-        color: `#a2466c`,
+        color: `#9D7CBF`,
+        showSpinner: false,
       },
     },
     `gatsby-plugin-glamor`,
